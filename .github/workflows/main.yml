@@ -1,39 +1,53 @@
-name: Build Android APK
+name: Build Android APK (No gradlew required)
 
 on:
   push:
-    branches: [ "main", "master" ]
-  pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-    
+
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-    
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    
-    - name: Clean project
-      run: ./gradlew clean
-    
-    - name: Build debug APK
+
+    - name: Create Gradle Wrapper (skip if already exists)
+      run: |
+        if [ ! -f "gradlew" ]; then
+          echo "Downloading Gradle 8.7..."
+          wget https://services.gradle.org/distributions/gradle-8.7-bin.zip
+          unzip gradle-8.7-bin.zip -d $HOME
+          mkdir -p gradle/wrapper
+          cp $HOME/gradle-8.7/lib/gradle-wrapper.jar gradle/wrapper/
+          cat > gradle/wrapper/gradle-wrapper.properties << EOF
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.7-bin.zip
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+EOF
+          cat > gradlew << 'EOF'
+#!/bin/sh
+exec $HOME/gradle-8.7/bin/gradle "\$@"
+EOF
+          chmod +x gradlew
+        fi
+
+    - name: Build Debug APK
       run: ./gradlew assembleDebug
-    
-    - name: Upload Debug APK
+
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: FF-Vivo-Turbo-Debug
