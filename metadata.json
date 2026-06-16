@@ -1,6 +1,0 @@
-{
-  "name": "FF Vivo Turbo",
-  "description": "Premium Gaming Booster & Aim Configuration Utility for Vivo T2x 5G and Flagship Devices. High-fidelity performance tuning, sensitivity profiling, and game customization console.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
